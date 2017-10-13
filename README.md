@@ -32,10 +32,10 @@ A more detailed discussion of the the use and benefits of a Software Ledger to t
 
 ## Project Components
 
-A supply chain network has two core system components: the ledger and conductor. The **ledger**, built using the Hyperledger Project's Sawtooth platform,  tracks:
+Our model of a supply chain network has two core system components: the ledger and conductor. The **ledger**, built using the Hyperledger Project's Sawtooth platform,  which tracks:
 
-- **suppliers** - providers of software parts. Each supplier needs to have a ledger registration. 
-- **software parts** - software parts used by manufactures to constructor their products. both simple and complex software parts. 
+- **suppliers** - providers of software parts. Each supplier must register with the ledger. 
+- **software parts** - software parts used by manufactures to construct products - includes both simple and complex software parts. 
 - **compliance artifacts** - artifacts prepared to satisfy the license obligations for the different opens source components used used to create a software part. They typically include obligatory source code, written offers for source, license notices and/or copies of licenses. The collection could also include information that, although not required by a license, provides important utility, such as Open Source BOMs, SPDX licensing data and cryptography information.
 - **compliance envelope** - a construct that represents a standard method of indexing, bundling and delivering the compliance artifacts as a single item. Regardless of whether a software offering is a simple atomic part (e.g., software library), or a more complex one such as the software runtime that controls a consumer device, the envelope contains a rich collection of information that represents all the open source parts that the offering was comprised of.
 - **relationships** -  relationships between the above entities (e.g, supplier -> parts, part -> envelope, ...)
@@ -55,4 +55,4 @@ The ledger provides the ability to maintain global state information across the 
 
 ## Getting Started
 
-See the Getting Start document in the project's documentation directory (/doc).
+See the Getting Started document in the project's documentation directory (/doc).
