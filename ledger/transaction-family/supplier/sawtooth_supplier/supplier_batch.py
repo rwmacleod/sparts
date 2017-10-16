@@ -1,6 +1,5 @@
 # Copyright 2016 Intel Corporation
-# Copyright 2017 Wind River Systems
-#
+# Copyright 2017 Wind River
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -29,18 +28,21 @@ from sawtooth_sdk.protobuf.batch_pb2 import BatchList
 from sawtooth_sdk.protobuf.batch_pb2 import BatchHeader
 from sawtooth_sdk.protobuf.batch_pb2 import Batch
 
-from sawtooth_category.category_exceptions import CategoryException
+from sawtooth_supplier.exceptions import SupplierException
 
 
 def _sha512(data):
     return hashlib.sha512(data).hexdigest()
 
 
-class CategoryClient:
+class SupplierBatch:
+  
+    
     
     def __init__(self, base_url, keyfile):
 
         self._base_url = base_url
+
         try:
             with open(keyfile) as fd:
                 self._private_key = fd.read().strip()
@@ -49,20 +51,21 @@ class CategoryClient:
             raise IOError("Failed to read keys.")
 
         self._public_key = signing.generate_pubkey(self._private_key)
-    
-    
-    def create(self,category_id,category_name,description, wait=None, auth_user=None, auth_password=None):
-        return self.send_category_transaction_request(category_id,category_name,description, "create", wait=wait,
+
+    def create(self,supplier_id,short_id,supplier_name,passwd,supplier_url, auth_user=None, auth_password=None):
+        return self.create_supplier_transaction(supplier_id,short_id,supplier_name,passwd,supplier_url, "create",
                                  auth_user=auth_user,
                                  auth_password=auth_password)
 
   
+    def add_part(self,supplier_id,part_id):
+        return self.create_supplier_transaction(supplier_id,"","","","","AddPart",part_id)
 
-    def list(self, auth_user=None, auth_password=None):
-        category_prefix = self._get_prefix()
+    def list_supplier(self, auth_user=None, auth_password=None):
+        supplier_prefix = self._get_prefix()
 
         result = self._send_request(
-            "state?address={}".format(category_prefix),
+            "state?address={}".format(supplier_prefix),
             auth_user=auth_user,
             auth_password=auth_password
         )
@@ -77,11 +80,10 @@ class CategoryClient:
         except BaseException:
             return None
 
-   
-    def show(self, category_id, auth_user=None, auth_password=None):
-        address = self._get_address(category_id)
+    def retrieve_supplier(self, supplier_id, auth_user=None, auth_password=None):
+        address = self._get_address(supplier_id)
 
-        result = self._send_request("state/{}".format(address), category_id=category_id,
+        result = self._send_request("state/{}".format(address), supplier_id=supplier_id,
                                     auth_user=auth_user,
                                     auth_password=auth_password)
         try:
@@ -90,29 +92,19 @@ class CategoryClient:
         except BaseException:
             return None
 
-    def _get_status(self, batch_id, wait, auth_user=None, auth_password=None):
-        try:
-            result = self._send_request(
-                'batch_status?id={}&wait={}'.format(batch_id, wait),
-                auth_user=auth_user,
-                auth_password=auth_password)
-            return yaml.safe_load(result)['data'][0]['status']
-        except BaseException as err:
-            raise CategoryException(err)
-   
+ 
+
     def _get_prefix(self):
-        return _sha512('category'.encode('utf-8'))[0:6]
+        return _sha512('supplier'.encode('utf-8'))[0:6]
 
-    
-    def _get_address(self, category_id):
-        category_prefix = self._get_prefix()
-        category_address = _sha512(category_id.encode('utf-8'))[0:64]
-        return category_prefix + category_address
+    def _get_address(self, supplier_id):
+        supplier_prefix = self._get_prefix()
+        address = _sha512(supplier_id.encode('utf-8'))[0:64]
+        return supplier_prefix + address
 
-   
     def _send_request(
             self, suffix, data=None,
-            content_type=None, name=None, auth_user=None, auth_password=None):
+            content_type=None, supplier_id=None, auth_user=None, auth_password=None):
         if self._base_url.startswith("http://"):
             url = "{}/{}".format(self._base_url, suffix)
         else:
@@ -135,29 +127,28 @@ class CategoryClient:
                 result = requests.get(url, headers=headers)
 
             if result.status_code == 404:
-                raise CategoryException("No such category: {}".format(name))
+                raise SupplierException("No such supplier: {}".format(supplier_id))
 
             elif not result.ok:
-                raise CategoryException("Error {}: {}".format(
+                raise SupplierException("Error {}: {}".format(
                     result.status_code, result.reason))
 
         except BaseException as err:
-            raise CategoryException(err)
+            raise SupplierException(err)
 
         return result.text
 
-    # Create Category transaction request 
-    def send_category_transaction_request(self, category_id,category_name="",description="", action, wait=None,
+    def create_supplier_transaction(self, supplier_id,short_id="",supplier_name="",passwd="",supplier_url="", action="",part_id="",
                      auth_user=None, auth_password=None):
-        # Serialization is just a delimited utf-8 encoded string
-        payload = ",".join([category_id,str(category_name),str(description),action]).encode()
+        
+        payload = ",".join([supplier_id,str(short_id),str(supplier_name),str(passwd),str(supplier_url), action,str(part_id)]).encode()
 
         # Construct the address
-        address = self._get_address(category_id)
+        address = self._get_address(supplier_id)
 
         header = TransactionHeader(
             signer_pubkey=self._public_key,
-            family_name="category",
+            family_name="supplier",
             family_version="1.0",
             inputs=[address],
             outputs=[address],
@@ -178,16 +169,14 @@ class CategoryClient:
 
         batch_list = self._create_batch_list([transaction])
         batch_id = batch_list.batches[0].header_signature
-
-        result = self._send_request(
-            "batches", batch_list.SerializeToString(),
-            'application/octet-stream', auth_user=auth_user,
-                auth_password=auth_password
-        )
         
-        return result
+        return self._send_request(
+            "batches", batch_list.SerializeToString(),
+            'application/octet-stream',
+            auth_user=auth_user,
+            auth_password=auth_password
+        )
 
-    # Create Batch List
     def _create_batch_list(self, transactions):
         transaction_signatures = [t.header_signature for t in transactions]
 

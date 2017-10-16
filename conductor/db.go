@@ -16,6 +16,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -73,10 +74,17 @@ func InitializeDB() {
 
 	fmt.Println("Initializing DB ...")
 	createDBTables()
+
+	fmt.Println()
+	jsonData, _ := dumpDBTable("Applications")
+	fmt.Println(jsonData)
+	fmt.Println()
 }
 
 // Create database tables
 func createDBTables() {
+
+	// TODO: create and store database model version
 
 	openDB()
 	defer theDB.Close()
@@ -157,7 +165,7 @@ func createDBTables() {
 		UUID TEXT,
 		Name TEXT,
 		Short_Id TEXT,
-		API_URL TEXT,
+		API_Address TEXT,
 		App_Type TEXT, 
 		Label TEXT,
 		Description TEXT,
@@ -176,6 +184,137 @@ func createDBTables() {
 				ON Applications (UUID);`
 
 	_, err = theDB.Exec(sql_cmd)
+}
+
+func dumpDBTable(table_name string) (string, error) {
+
+	/******
+		type TableInfo struct {
+			Name			string `json:"table_name"`
+			Content			string `json:"content"`
+		}
+
+		var table TableInfo
+	******/
+
+	defer theDB.Close()
+	// Prepare statement to get the native types.
+	stmt, err := theDB.Prepare(fmt.Sprintf("SELECT * FROM %s", table_name))
+
+	if err != nil {
+		return "", err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query()
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+
+	columns, err := rows.Columns()
+	if err != nil {
+		return "", err
+	}
+
+	tableData := make([]map[string]interface{}, 0)
+
+	count := len(columns)
+	values := make([]interface{}, count)
+	scanArgs := make([]interface{}, count)
+	for i := range values {
+		scanArgs[i] = &values[i]
+	}
+
+	for rows.Next() {
+		err := rows.Scan(scanArgs...)
+		if err != nil {
+			return "", err
+		}
+
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			v := values[i]
+
+			b, ok := v.([]byte)
+			if ok {
+				entry[col] = string(b)
+			} else {
+				entry[col] = v
+			}
+		}
+
+		tableData = append(tableData, entry)
+	}
+
+	jsonData99, err := json.Marshal(tableData)
+	//fmt.Printf ("jsonData type: %T\n", jsonData99)
+
+	/***
+	  jsonData, err1 := json.Marshal(tableData)
+	  if err1 != nil {
+	    return "", err1
+	  }
+
+	  table.Name = table_name
+	  table.Content = jsonData
+
+	  jsonRecord, err2 := json.Marshal(table)
+	  if err2 != nil {
+	    return "", err2
+	  }
+	*******/
+	return string(jsonData99), nil
+}
+
+func dumpTable2(table string) (string, error) {
+
+	//rows, err := db.Query(sqlString)
+
+	openDB()
+	defer theDB.Close()
+	////sqlString = fmt.Sprintf("SELECT * FROM %s", table)
+	rows, err := theDB.Query(fmt.Sprintf("SELECT * FROM %s", table))
+
+	checkErr(err)
+
+	if err != nil {
+		return "", err
+	}
+	defer rows.Close()
+	columns, err := rows.Columns()
+	if err != nil {
+		return "", err
+	}
+	count := len(columns)
+	tableData := make([]map[string]interface{}, 0)
+	values := make([]interface{}, count)
+	valuePtrs := make([]interface{}, count)
+	for rows.Next() {
+		for i := 0; i < count; i++ {
+			valuePtrs[i] = &values[i]
+		}
+		rows.Scan(valuePtrs...)
+		entry := make(map[string]interface{})
+		for i, col := range columns {
+			var v interface{}
+			val := values[i]
+			b, ok := val.([]byte)
+			if ok {
+				v = string(b)
+			} else {
+				v = val
+			}
+			entry[col] = v
+		}
+		tableData = append(tableData, entry)
+	}
+	jsonData, err := json.Marshal(tableData)
+	if err != nil {
+		return "", err
+	}
+	fmt.Println(string(jsonData))
+	return string(jsonData), nil
 }
 
 // A boolean function that determines if a record with uuid exits in the db/
@@ -236,7 +375,9 @@ func GetLedgerNodeInfo(uuid string, lnode *ledgerNode) {
 }
 
 // Insert Supply Chain network Application record into the DB
-func AddApplicationToDB(uuid string,
+func AddApplicationToDB(record AppRecord) {
+	/*****
+	uuid string,
 	name string,
 	short_id string,
 	api_url string,
@@ -244,6 +385,9 @@ func AddApplicationToDB(uuid string,
 	label string,
 	description string,
 	status string) {
+		*****/
+
+	// TODO: return succes/failure status
 	openDB()
 	defer theDB.Close()
 
@@ -252,7 +396,7 @@ func AddApplicationToDB(uuid string,
 		UUID,
 		Name,
 		Short_Id,
-		API_URL,
+		API_Address,
 		App_Type, 
 		Label,
 		Description,
@@ -266,8 +410,10 @@ func AddApplicationToDB(uuid string,
 		panic(err)
 	}
 
-	_, err2 := stmt.Exec(uuid, name, short_id, api_url,
-		app_type, label, description, status)
+	//_, err2 := stmt.Exec(uuid, name, short_id, api_url,
+	//						app_type, label, description, status)
+	_, err2 := stmt.Exec(record.UUID, record.Name, record.ShortId, record.API_Address,
+		record.App_Type, record.Label, record.Description, record.Status)
 	if err2 != nil {
 		panic(err2)
 	}
@@ -275,14 +421,39 @@ func AddApplicationToDB(uuid string,
 	//_, err = res.LastInsertId()
 }
 
+func GetApplicationListDB() []AppRecord {
+
+	var list []AppRecord
+	var record AppRecord
+
+	openDB()
+	defer theDB.Close()
+	rows, err := theDB.Query("SELECT UUID, Name, Short_Id, API_Address, App_Type, Label, Description, Status FROM Applications")
+	checkErr(err)
+
+	for rows.Next() {
+		err = rows.Scan(&record.UUID, &record.Name, &record.ShortId, &record.API_Address, &record.App_Type,
+			&record.Label, &record.Description, &record.Status)
+		checkErr(err)
+		list = append(list, record)
+	}
+	rows.Close() //good habit to close
+	return list
+}
+
 // Insert Ledger node record into the DB
-func AddLedgerNodeToDB(uuid string,
+func AddLedgerNodeToDB(node_record LedgerNode) {
+
+	/*****
+	uuid string,
 	name string,
 	short_id string,
 	api_url string,
 	label string,
 	description string,
 	status string) {
+	******/
+
 	openDB()
 	defer theDB.Close()
 
@@ -304,8 +475,10 @@ func AddLedgerNodeToDB(uuid string,
 		panic(err)
 	}
 
-	_, err2 := stmt.Exec(uuid, name, short_id, api_url,
-		label, description, status)
+	//_, err2 := stmt.Exec(uuid, name, short_id, api_url,
+	//	label, description, status)
+	_, err2 := stmt.Exec(node_record.UUID, node_record.Name, node_record.ShortId, node_record.API_Address,
+		node_record.Label, node_record.Description, node_record.Status)
 	if err2 != nil {
 		panic(err2)
 	}
@@ -323,7 +496,7 @@ func GetLedgerNodesFromDB() []LedgerNode {
 	checkErr(err)
 
 	for rows.Next() {
-		err = rows.Scan(&node.UUID, &node.Name, &node.ShortId, &node.API_URL,
+		err = rows.Scan(&node.UUID, &node.Name, &node.ShortId, &node.API_Address,
 			&node.Label, &node.Description)
 		checkErr(err)
 		list = append(list, node)

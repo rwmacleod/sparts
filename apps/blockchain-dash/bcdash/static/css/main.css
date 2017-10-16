@@ -226,8 +226,6 @@ h3 {
 }
 
 .node-status-text {
-    float: left;
-    margin-right: 5px;
 }
 
 .blockchain-node-popup-content {
@@ -342,6 +340,7 @@ h3 {
 .blockchain-node-status {
     margin-top: 5px;
     max-width: 200px;
+    text-align: center;
 }
 
 .blockchain-node-name span {
@@ -366,6 +365,7 @@ h3 {
     height: 100px;
     width: 100px;
     position: relative;
+    margin-right: 30px;
 }
 
 .blockchain-app-icon {
@@ -446,4 +446,12 @@ h3 {
 .mini-part-icon .part-icon {
     height: 30px;
     width: 30px;
+}
+
+.blockchain-app-popup-content {
+    display: none;
+}
+
+.blockchain-app {
+    cursor: pointer;
 }

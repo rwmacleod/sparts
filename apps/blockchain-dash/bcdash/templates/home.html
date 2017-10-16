@@ -14,7 +14,8 @@
 
 
         <div class="blockchain-dash-info">
-            <strong>Hyperledger Platform:</strong> Sawtooth 0.8.7
+            <strong>Platform:</strong> <span id="hyperledger-version">
+            Retrieving...</span>
         </div>
     </div>
 
@@ -36,8 +37,11 @@
 <h3>Blockchain Nodes</h3>
 <hr>
 
-
+{% if not nodes %}
+    There are no nodes registered.
+{% else %}
 <div class="blockchain-view-section blockchain-view-section-nodes">
+
 {% for node in nodes %}
 
     <div class="blockchain-node">
@@ -50,14 +54,14 @@
         </div>
 
         <div class="blockchain-node-status" uuid="{{node['uuid']}}">
-        <div class="node-status-text">Status: </div>
-        <div class="blockchain-nodes-preload"></div>
-        <span class="node-status-value">Retrieving...</span>
+            <span class="node-status-text">Status: </span>
+            <span class="blockchain-nodes-preload"></span>
+            <span class="node-status-value">Retrieving...</span>
         </div>
 
         <div class="blockchain-node-popup-content">
             <div><strong>Node {{node["short_id"]}} ({{node["label"]}})</strong></div>
-            <div><strong>Ledger service URL</strong>: {{node["api_url"]}}</div>
+            <div><strong>Ledger service URL</strong>: {{node["api_address"]}}</div>
             <div><strong>UUID</strong>: {{node["uuid"]}}</div>
             <div><strong>Description</strong>: {{node["description"]}}</div>
         </div>
@@ -66,9 +70,14 @@
 
 {% endfor %}
 </div>
+{% endif %}
 
 <h3>Applications</h3>
 <hr>
+
+{% if not apps %}
+    There are no apps registered.
+{% else %}
 
 <div class="blockchain-view-section blockchain-view-section-applications">
     {% for app in apps %}
@@ -77,13 +86,20 @@
             <div class="blockchain-app-icon"></div>
 
             <div class="blockchain-app-name">
-            {{app}}
+            {{app["label"]}}
+            </div>
+
+            <div class="blockchain-app-popup-content">
+                <div><strong>Name</strong>: {{app["name"]}}</div>
+                <div><strong>UUID</strong>: {{app["uuid"]}}</div>
+                <div><strong>App Type</strong>: {{app["app_type"]}}</div>
+                <div><strong>API service</strong>: {{app["api_address"]}}</div>
+                <div><strong>Description</strong>: {{app["description"]}}</div>
             </div>
         </div>
-
     {% endfor %}
 </div>
-
+{% endif %}
 
 
 <h3>Suppliers &amp; Parts</h3>

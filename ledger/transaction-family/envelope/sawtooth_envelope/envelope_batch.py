@@ -1,5 +1,4 @@
 # Copyright 2016 Intel Corporation
-# Copyright 2017 Wind River Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,18 +28,18 @@ from sawtooth_sdk.protobuf.batch_pb2 import BatchList
 from sawtooth_sdk.protobuf.batch_pb2 import BatchHeader
 from sawtooth_sdk.protobuf.batch_pb2 import Batch
 
-from sawtooth_supplier.supplier_exceptions import SupplierException
+from sawtooth_envelope.exceptions import EnvelopeException
 
 
 def _sha512(data):
     return hashlib.sha512(data).hexdigest()
 
 
-class SupplierClient:
-    
+class EnvelopeBatch:
     def __init__(self, base_url, keyfile):
 
         self._base_url = base_url
+
         try:
             with open(keyfile) as fd:
                 self._private_key = fd.read().strip()
@@ -49,26 +48,17 @@ class SupplierClient:
             raise IOError("Failed to read keys.")
 
         self._public_key = signing.generate_pubkey(self._private_key)
-    
-    
-    def create(self,supplier_id,short_id,supplier_name,passwd,supplier_url,auth_user=None, auth_password=None):
-        return self.send_supplier_transaction_request(supplier_id,short_id,supplier_name,passwd,supplier_url, "create","", 
-                                 auth_user=auth_user,
-                                 auth_password=auth_password)
 
-  
+    def create(self,artifact_id,short_id,artifact_name,artifact_type,artifact_checksum,path,uri,label,openchain, auth_user=None, auth_password=None):
+        return self.create_artifact_transaction(artifact_id,short_id,artifact_name,artifact_type,artifact_checksum,path,uri,label,openchain,"create","",auth_user,auth_password)
 
-    def AddPart(self,supplier_id,part_id,auth_user=None, auth_password=None):
-        return self.send_supplier_transaction_request(supplier_id,"","","","", "AddPart","", 
-                                 auth_user=auth_user,
-                                 auth_password=auth_password)
-        
     
-    def list(self, auth_user=None, auth_password=None):
-        supplier_prefix = self._get_prefix()
+
+    def list_artifact(self, auth_user=None, auth_password=None):
+        artifact_prefix = self._get_prefix()
 
         result = self._send_request(
-            "state?address={}".format(supplier_prefix),
+            "state?address={}".format(artifact_prefix),
             auth_user=auth_user,
             auth_password=auth_password
         )
@@ -82,12 +72,14 @@ class SupplierClient:
 
         except BaseException:
             return None
+        
+    def add_artifact(self,artifact_id,sub_artifact_id, auth_user=None, auth_password=None):
+        return self.create_artifact_transaction(artifact_id,"","","","","","","","","AddArtifact",sub_artifact_id,auth_user,auth_password) 
 
-   
-    def show(self, supplier_id, auth_user=None, auth_password=None):
-        address = self._get_address(supplier_id)
+    def retrieve_artifact(self, artifact_id, auth_user=None, auth_password=None):
+        address = self._get_address(artifact_id)
 
-        result = self._send_request("state/{}".format(address), supplier_id=supplier_id,
+        result = self._send_request("state/{}".format(address), artifact_id=artifact_id,
                                     auth_user=auth_user,
                                     auth_password=auth_password)
         try:
@@ -96,29 +88,19 @@ class SupplierClient:
         except BaseException:
             return None
 
-    def _get_status(self, batch_id, auth_user=None, auth_password=None):
-        try:
-            result = self._send_request(
-                'batch_status?id={}&wait={}'.format(batch_id),
-                auth_user=auth_user,
-                auth_password=auth_password)
-            return yaml.safe_load(result)['data'][0]['status']
-        except BaseException as err:
-            raise SupplierException(err)
-   
+  
+
     def _get_prefix(self):
-        return _sha512('supplier'.encode('utf-8'))[0:6]
+        return _sha512('comp'.encode('utf-8'))[0:6]
 
-    
-    def _get_address(self, supplier_id):
-        supplier_prefix = self._get_prefix()
-        supplier_address = _sha512(supplier_id.encode('utf-8'))[0:64]
-        return supplier_prefix + supplier_address
+    def _get_address(self, artifact_id):
+        artifact_prefix = self._get_prefix()
+        address = _sha512(artifact_id.encode('utf-8'))[0:64]
+        return artifact_prefix + address
 
-   
     def _send_request(
             self, suffix, data=None,
-            content_type=None, name=None, auth_user=None, auth_password=None):
+            content_type=None, artifact_id=None, auth_user=None, auth_password=None):
         if self._base_url.startswith("http://"):
             url = "{}/{}".format(self._base_url, suffix)
         else:
@@ -141,29 +123,28 @@ class SupplierClient:
                 result = requests.get(url, headers=headers)
 
             if result.status_code == 404:
-                raise SupplierException("No such supplier: {}".format(name))
+                raise EnvelopeException("No such envelope: {}".format(artifact_id))
 
             elif not result.ok:
-                raise SupplierException("Error {}: {}".format(
+                raise EnvelopeException("Error {}: {}".format(
                     result.status_code, result.reason))
 
         except BaseException as err:
-            raise SupplierException(err)
+            raise EnvelopeException(err)
 
         return result.text
 
-    # Create Supplier transaction request 
-    def send_supplier_transaction_request(self, supplier_id,supplier_name="",description="", action,part_id="",
+    def create_artifact_transaction(self, artifact_id,short_id="",artifact_name="",artifact_type="",artifact_checksum="",path="",uri="",label="",openchain="", action="", sub_artifact_id="",
                      auth_user=None, auth_password=None):
-        # Serialization is just a delimited utf-8 encoded string
-        payload = ",".join([supplier_id,str(supplier_name),str(description),action]).encode()
+        
+        payload = ",".join([artifact_id,str(short_id),str(artifact_name),str(artifact_type),str(artifact_checksum),str(path),str(uri),str(label),str(openchain), action,str(sub_artifact_id)]).encode()
 
-        # Construct the address
-        address = self._get_address(supplier_id)
+        
+        address = self._get_address(artifact_id)
 
         header = TransactionHeader(
             signer_pubkey=self._public_key,
-            family_name="supplier",
+            family_name="comp",
             family_version="1.0",
             inputs=[address],
             outputs=[address],
@@ -185,15 +166,13 @@ class SupplierClient:
         batch_list = self._create_batch_list([transaction])
         batch_id = batch_list.batches[0].header_signature
         
-        result = self._send_request(
+        return self._send_request(
             "batches", batch_list.SerializeToString(),
-            'application/octet-stream', auth_user=auth_user,
-                auth_password=auth_password
+            'application/octet-stream',
+            auth_user=auth_user,
+            auth_password=auth_password
         )
-        
-        return result
 
-    # Create Batch List
     def _create_batch_list(self, transactions):
         transaction_signatures = [t.header_signature for t in transactions]
 

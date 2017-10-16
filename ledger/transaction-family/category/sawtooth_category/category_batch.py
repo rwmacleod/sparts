@@ -1,5 +1,5 @@
 # Copyright 2016 Intel Corporation
-# Copyright 2017 Wind River Systems
+# Copyright 2017 Wind River
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,18 +29,18 @@ from sawtooth_sdk.protobuf.batch_pb2 import BatchList
 from sawtooth_sdk.protobuf.batch_pb2 import BatchHeader
 from sawtooth_sdk.protobuf.batch_pb2 import Batch
 
-from sawtooth_part.part_exceptions import PartException
+from sawtooth_category.exceptions import CategoryException
 
 
 def _sha512(data):
     return hashlib.sha512(data).hexdigest()
 
 
-class PartClient:
-    
+class CategoryBatch:
     def __init__(self, base_url, keyfile):
 
         self._base_url = base_url
+
         try:
             with open(keyfile) as fd:
                 self._private_key = fd.read().strip()
@@ -49,24 +49,19 @@ class PartClient:
             raise IOError("Failed to read keys.")
 
         self._public_key = signing.generate_pubkey(self._private_key)
-    
-    
-    def create(self,pt_id,pt_name,checksum,version,src_uri,licensing,label,description, auth_user=None, auth_password=None):
-        return self.send_part_transaction_request(pt_id,pt_name,checksum,version,src_uri,licensing,label,description,"create","","","",
+
+    def create_category(self, category_id,category_name,description, auth_user=None, auth_password=None):
+        return self.send_category_transactions(category_id,category_name,description, "create",
                                  auth_user=auth_user,
                                  auth_password=auth_password)
 
   
-    def add_envelope(self,pt_id,envelope_id, auth_user=None, auth_password=None):
-        return self.send_part_transaction_request(pt_id,"","","","","","","","AddEnvelope",envelope_id,"","", auth_user=auth_user,
-                                 auth_password=auth_password)
-   
-  
-    def list(self, auth_user=None, auth_password=None):
-        part_prefix = self._get_prefix()
+
+    def list_category(self, auth_user=None, auth_password=None):
+        category_prefix = self._get_prefix()
 
         result = self._send_request(
-            "state?address={}".format(part_prefix),
+            "state?address={}".format(category_prefix),
             auth_user=auth_user,
             auth_password=auth_password
         )
@@ -81,15 +76,10 @@ class PartClient:
         except BaseException:
             return None
 
-    def add_category(self,pt_id,category_id, auth_user=None, auth_password=None):
-        return self.send_part_transaction_request(pt_id,"","","","","","","","AddCategory","",category_id,"", auth_user=auth_user,
-                                 auth_password=auth_password)
-        
-        
-    def show(self, pt_id, auth_user=None, auth_password=None):
-        address = self._get_address(pt_id)
+    def retreive_category(self, category_id, auth_user=None, auth_password=None):
+        address = self._get_address(category_id)
 
-        result = self._send_request("state/{}".format(address), pt_id=pt_id,
+        result = self._send_request("state/{}".format(address), category_id=category_id,
                                     auth_user=auth_user,
                                     auth_password=auth_password)
         try:
@@ -98,33 +88,17 @@ class PartClient:
         except BaseException:
             return None
 
-    def _get_status(self, batch_id, auth_user=None, auth_password=None):
-        try:
-            result = self._send_request(
-                'batch_status?id={}&wait={}'.format(batch_id),
-                auth_user=auth_user,
-                auth_password=auth_password)
-            return yaml.safe_load(result)['data'][0]['status']
-        except BaseException as err:
-            raise PartException(err)
-   
     def _get_prefix(self):
-        return _sha512('part'.encode('utf-8'))[0:6]
+        return _sha512('category'.encode('utf-8'))[0:6]
 
-    
-    def _get_address(self, pt_id):
-        part_prefix = self._get_prefix()
-        part_address = _sha512(pt_id.encode('utf-8'))[0:64]
-        return part_prefix + part_address
+    def _get_address(self, category_id):
+        category_prefix = self._get_prefix()
+        address = _sha512(category_id.encode('utf-8'))[0:64]
+        return category_prefix + address
 
-  
-    def add_supplier(self,pt_id,supplier_id, auth_user=None, auth_password=None):
-        return self.send_part_transaction_request(pt_id,"","","","","","","","AddSupplier","","",supplier_id, auth_user=auth_user,
-                                 auth_password=auth_password)
-   
     def _send_request(
             self, suffix, data=None,
-            content_type=None, name=None, auth_user=None, auth_password=None):
+            content_type=None, category_id=None, auth_user=None, auth_password=None):
         if self._base_url.startswith("http://"):
             url = "{}/{}".format(self._base_url, suffix)
         else:
@@ -147,29 +121,28 @@ class PartClient:
                 result = requests.get(url, headers=headers)
 
             if result.status_code == 404:
-                raise PartException("No such part: {}".format(name))
+                raise CategoryException("No such Category: {}".format(category_id))
 
             elif not result.ok:
-                raise PartException("Error {}: {}".format(
+                raise CategoryException("Error {}: {}".format(
                     result.status_code, result.reason))
 
         except BaseException as err:
-            raise PartException(err)
+            raise CategoryException(err)
 
         return result.text
 
-    # Create part transaction request 
-    def send_part_transaction_request(self,pt_id,pt_name="",checksum="",version="",src_uri="",licensing="",label="",description="", action="", envelope_id="",category_id="",supplier_id="",
+    def send_category_transactions(self, category_id,category_name,description, action,
                      auth_user=None, auth_password=None):
-        # Serialization is just a delimited utf-8 encoded string
-        payload = ",".join([pt_id,str(pt_name),str(checksum),str(version),str(src_uri),str(licensing),str(label),str(description), action,str(envelope_id),str(category_id),str(supplier_id)]).encode()
+        
+        payload = ",".join([category_id,category_name,description, action]).encode()
 
-        # Construct the address
-        address = self._get_address(pt_id)
+        # Form the address
+        address = self._get_address(category_id)
 
         header = TransactionHeader(
             signer_pubkey=self._public_key,
-            family_name="part",
+            family_name="category",
             family_version="1.0",
             inputs=[address],
             outputs=[address],
@@ -190,16 +163,14 @@ class PartClient:
 
         batch_list = self._create_batch_list([transaction])
         batch_id = batch_list.batches[0].header_signature
-
-        result = self._send_request(
-            "batches", batch_list.SerializeToString(),
-            'application/octet-stream', auth_user=auth_user,
-                auth_password=auth_password
-        )
         
-        return result
+        return self._send_request(
+            "batches", batch_list.SerializeToString(),
+            'application/octet-stream',
+            auth_user=auth_user,
+            auth_password=auth_password
+        )
 
-    # Create Batch List
     def _create_batch_list(self, transactions):
         transaction_signatures = [t.header_signature for t in transactions]
 

@@ -14,6 +14,5 @@
 # ------------------------------------------------------------------------------
 
 
-class EnvelopeException(Exception):
-    def __init__(self, msg):
-        super(EnvelopeException, self).__init__(msg)
+class CategoryException(Exception):
+    pass

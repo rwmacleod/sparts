@@ -14,6 +14,5 @@
 # ------------------------------------------------------------------------------
 
 
-class CategoryException(Exception):
-    def __init__(self, msg):
-        super(CategoryException, self).__init__(msg)
+class PartException(Exception):
+    pass

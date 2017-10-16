@@ -62,6 +62,7 @@ $(document).ready(function() {
             $("#envelope-count").html($("#envelopes-count-value").val());
             $("#part-count").html($("#parts-count-value").val());
             $("#supplier-count").html($("#suppliers-count-value").val());
+            $("#hyperledger-version").html($("#hyperledger-version-value").val());
         },
         error: function(jqXHR, textStatus, errorThrown) {
             popup_message("Error", errorThrown);
@@ -74,6 +75,10 @@ $(document).ready(function() {
 
 $(document).on("click", ".blockchain-node", function(evt) {
     popup_message("Node Details", $(this).find(".blockchain-node-popup-content").html());
+});
+
+$(document).on("click", ".blockchain-app", function(evt) {
+    popup_message("App Details", $(this).find(".blockchain-app-popup-content").html());
 });
 
 $(document).on("click", ".bc-envelope-link", function(evt) {

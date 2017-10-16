@@ -1,4 +1,4 @@
-# Copyright 2016 Intel Corporation
+# Copyright 2017 Wind River
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,5 @@
 # ------------------------------------------------------------------------------
 
 
-class PartException(Exception):
-    def __init__(self, msg):
-        super(PartException, self).__init__(msg)
+class EnvelopeException(Exception):
+    pass

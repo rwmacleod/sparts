@@ -15,5 +15,4 @@
 
 
 class SupplierException(Exception):
-    def __init__(self, msg):
-        super(SupplierException, self).__init__(msg)
+    pass
