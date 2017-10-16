@@ -2,7 +2,7 @@
 __pycache__/
 blockchain-dash/config.py
 
- apps/catalog/.gitignore
+apps/catalog/.gitignore
 
 ## conductor
 conductor/test/*
