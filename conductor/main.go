@@ -69,19 +69,17 @@ func GetConfigurationInfo(configuration *Configuration, first_time bool) {
 			fmt.Println("verbose on	  = ", configuration.Debug_DB_On)
 			fmt.Println("config  reload	  = ", configuration.ConfigReloadAllowed)
 		}
-
+/****
 		// Check for the db directory's existence and create it if it doesn't exist
 		dir_path, _, _, _ := FilenameDirectorySplit(configuration.DatabaseFile)
 		if _, err := os.Stat(dir_path); os.IsNotExist(err) {
 
-<<<<<<< HEAD
-=======
 			os.MkdirAll(dir_path, os.ModePerm)
 		}
 		// If the db "file" does not exist it will be created automatically when db tables are initialized.
 
->>>>>>> 91f646924891425a4cd0a5aba4ecbccad7b71bd5
-	}
+  ******/
+}
 }
 
 // Gloabl request counter

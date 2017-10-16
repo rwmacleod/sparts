@@ -104,8 +104,6 @@ func GetHostIPAddress() string {
 	return torn[0]
 }
 
-<<<<<<< HEAD
-=======
 // Parses a a full  file path name
 // RETURNS: directory path, filename, file base name (name w/o ext), file extension
 // Example: Path: "./d1/d2/d3/my_code.go"
@@ -120,7 +118,6 @@ func FilenameDirectorySplit(full_file_path string) (string, string, string, stri
 	return dir_path, filename, base_name, file_extension
 }
 
->>>>>>> 91f646924891425a4cd0a5aba4ecbccad7b71bd5
 /***
 // FileExist returns whether the given file or directory exists or not
 func FileExists (path string) (bool, error) {
