@@ -28,13 +28,18 @@ def ping_handler():
 def get_uuid():
     """call the conductor service to a unique UUID
     """
+    if app.config["BYPASS_API_CALLS"]:
+        raise APIError("Could not retrieve a UUID from conductor service. API calls are disabled.")
+
     try:
         response = call_conductor_api("get", "/uuid")
+
         if "uuid" in response:
             return response["uuid"]
         else:
-            raise APIError("The call to conductor to get a new UUID failed. The response did " \
-                + "not contain a UUID.")
+            raise APIError("The call to conductor service at '" \
+                + str(app.config["BLOCKCHAIN_API"]) \
+                + "/uuid' to get a new UUID failed. The response did not contain a UUID.")
     except APIError as error:
         raise APIError("Failed to get a new UUID from conductor service. " + str(error))
 

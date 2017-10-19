@@ -28,6 +28,7 @@ from sqlalchemy.sql import exists
 from werkzeug.utils import secure_filename
 from sparts import app, db_session, render_page, jsonify, stacktrace
 from sparts.models import Part, Supplier, Artifact, Envelope, BOM, BOMItem
+from sparts.api import save_part_envelope_relation
 from sparts.exceptions import EnvelopeError
 
 def extract_and_parse_envelope(envelope_path, extract_path):
@@ -264,10 +265,6 @@ def extract_and_parse_envelope(envelope_path, extract_path):
     db_session.flush()
     db_session.commit()
 
-    #
-    # TODO: add envelope to the blockchain
-    #
-
     return envelope
 
 
@@ -320,6 +317,10 @@ def upload_envelope():
 
         envelope.blockchain = part.blockchain
         part.envelope_id = envelope.id
+
+        if part.blockchain:
+            envelope.save_to_blockchain()
+            save_part_envelope_relation(part, envelope)
 
         db_session.flush()
         db_session.commit()

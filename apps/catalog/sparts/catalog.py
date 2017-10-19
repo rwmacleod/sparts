@@ -19,7 +19,8 @@ from sqlalchemy import desc, asc, and_
 from sqlalchemy.sql import exists
 from sparts import app, db_session, render_page, jsonify, stacktrace
 from sparts.models import Category, Supplier, Part, Envelope
-from sparts.api import APIError, get_blockchain_categories
+from sparts.api import APIError, get_blockchain_categories, save_part_supplier_relation, \
+    save_part_category_relation, save_part_envelope_relation
 from sparts.envelope import delete_envelope
 
 
@@ -205,10 +206,13 @@ def create_part():
              +  "' is not registered with the blockchain network. None of its" \
              + " software parts can be registered with the network."
 
-        # call the ledger service to add this part to the blockchain
+        # call the ledger service to add this part and its relations to the blockchain
 
         if part.blockchain:
             part.save_to_blockchain()
+            for category in part.categories:
+                save_part_category_relation(part, category)
+            save_part_supplier_relation(part, supplier)
 
         db_session.add(part)
         db_session.flush()
