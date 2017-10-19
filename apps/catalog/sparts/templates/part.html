@@ -11,7 +11,13 @@ var lastsaved_categories = selected_categories.slice();
         <div id="supplier-edit-buttons">
             <button class="btn btn-default" id="enable-edit-btn" role="button">Edit Part</button>
             <button class="btn btn-primary" id="save-edit-btn" role="button">Save Edits</button>
-            <button class="btn btn-default" id="cancel-edit-btn" role="button">Cancel</button>
+            <button class="btn btn-default" id="cancel-edit-btn" role="button">Cancel</button
+            >
+            <a class="btn btn-success download-part-btn"
+            href="{{part.src_uri}}" {{'disabled="disabled"' if not part.src_uri}}
+            target="_blank"><span class="glyphicon glyphicon-download-alt"></span> Download Part</a>
+
+            <button class="btn btn-danger" id="delete-part-btn" role="button"><span class="glyphicon glyphicon glyphicon-trash"></span> Delete</button>
         </div>
     </div>
 
@@ -38,6 +44,11 @@ var lastsaved_categories = selected_categories.slice();
         <strong>Universal SKU:</strong> <span class=
         "field-value">{{part.usku}}</span><span><a class="edit-button" href=
         "javascript:void(0);">Edit</a></span>
+    </div>
+
+    <div class="part-field" id="part-uuid">
+        <strong>UUID:</strong> <span class=
+        "field-value">{{part.uuid}}</span>
     </div>
 
 
@@ -108,11 +119,6 @@ var lastsaved_categories = selected_categories.slice();
         </div>
     </div>
 </div>
-
-
-<hr class="delete-part-hr">
-
-<button class="btn btn-danger" id="delete-part-btn" role="button">Delete this part</button>
 
 <div class="modal fade" id="delete-envelope-dialog" role="dialog">
     <div class="modal-dialog">
