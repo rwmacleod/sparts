@@ -1,4 +1,4 @@
-/*
+
 Copyright (c) 2017 Wind River Systems, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -454,4 +454,90 @@ h3 {
 
 .blockchain-app {
     cursor: pointer;
+}
+
+.node-blocks-table-container {
+    margin-top: 50px;
+    min-height: 150px;
+}
+
+.node-blocks-table-container h4 {
+    font-size: 17px;
+}
+
+.node-blocks-table {
+    width: 700px;
+}
+
+.node-blocks-table table {
+    border-radius: 5px;
+    border-collapse: collapse;
+    width: 100%;
+    /*box-shadow: 0 0 3px 4px #ececec;*/
+}
+
+.node-blocks-table td {
+    padding: 10px;
+    /*border: 1px solid #A8BEFF;*/
+}
+
+.node-blocks-table thead td {
+    background-color: #6088ff;
+    color: white;
+    font-weight: bold;
+}
+
+.node-blocks-table tbody td {
+    background-color: black;
+    color: white;
+    font-family: Consolas, monaco, monospace;
+    font-size: 13px;
+    /*border-top: 2px solid grey;*/
+    /*border-bottom: 2px solid grey;*/
+}
+
+.seperator-row {
+    background-color: white !important;
+    height: 5px;
+    padding: 0 !important;
+}
+
+.chain-graphic-col {
+    width: 50px;
+    background-image: url("/static/images/link.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-color: white !important;
+    background-size: 25px 25px;
+    background-position: 10px 6px;
+}
+
+.node-blocks-table table thead td:first-child {
+    border-top-left-radius: 5px;
+}
+.node-blocks-table table thead td:last-child {
+    border-top-right-radius: 5px;
+}
+
+.payload-data {
+    cursor: pointer;
+    color: white;
+}
+
+.payload-data:hover {
+    color: #7D9EFF;
+}
+
+.popover {
+    color: black;
+    max-width: 350px;
+}
+
+.popover-content {
+    overflow-y: auto;
+    max-height: 100px;
+    background-color: #24335F;
+    color: white;
+    font-family: Consolas, monaco, monospace;
+    font-size: 12px;
 }

@@ -1,3 +1,9 @@
+{% if not supplier_parts %}
+
+  No parts or suppliers are registered on the network.
+
+{% else %}
+
 {% for supplier_uuid in supplier_parts %}
 {% set supplier = supplier_parts[supplier_uuid]["supplier"] %}
 {% set parts = supplier_parts[supplier_uuid]["parts"] %}
@@ -105,10 +111,10 @@
 
 </div>
 
+{% endfor %}
+{% endif %}
+
 <input type="hidden" id="suppliers-count-value" value="{{suppliers_count}}">
 <input type="hidden" id="parts-count-value" value="{{parts_count}}">
 <input type="hidden" id="envelopes-count-value" value="{{envelopes_count}}">
 <input type="hidden" id="hyperledger-version-value" value="{{hyperledger_version}}">
-
-
-{% endfor %}

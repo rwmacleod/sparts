@@ -44,7 +44,7 @@
 
 {% for node in nodes %}
 
-    <div class="blockchain-node">
+    <div class="blockchain-node" uuid="{{node['uuid']}}">
 
         <div class="blockchain-node-image">
         </div>
@@ -64,6 +64,14 @@
             <div><strong>Ledger service URL</strong>: {{node["api_address"]}}</div>
             <div><strong>UUID</strong>: {{node["uuid"]}}</div>
             <div><strong>Description</strong>: {{node["description"]}}</div>
+            <div class="node-blocks-table-container">
+                <div class="node-blocks-table-preload">
+                    <h4>Transaction Blocks</h4>
+                    <hr>
+                    <div class="blockchain-components-preload"></div>
+                </div>
+                <div class="node-blocks-table"></div>
+            </div>
         </div>
 
     </div>

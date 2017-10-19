@@ -12,14 +12,13 @@ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES
 OR CONDITIONS OF ANY KIND, either express or implied.
 """
 import traceback
-import datetime
 import json
 from flask import render_template, Response, jsonify
 from requests.exceptions import ReadTimeout, ConnectionError
 from bcdash import app
 from bcdash.api import get_blockchain_nodes, get_ledger_address, ping_node, \
     get_bc_suppliers, get_bc_parts, get_bc_categories, get_bc_envelopes, get_blockchain_apps, \
-    get_ledger_uptime, get_ledger_version
+    get_ledger_uptime, get_ledger_version, get_node_blocks
 from bcdash.exceptions import APIError
 
 def render_page(template, title="", *args, **kwargs):
@@ -47,13 +46,9 @@ def query_ledger_components():
         suppliers = get_bc_suppliers()
         parts = get_bc_parts()
         envelopes = get_bc_envelopes()
-
-        hyperledger_platform = get_ledger_version()
-        hyperledger_version = str(hyperledger_platform["name"]) + " version " \
-            + str(hyperledger_platform["version"])
+        hyperledger_version = get_ledger_version()
 
         supplier_parts = {}
-
         categories_by_uuid = {}
         for category in categories:
             categories_by_uuid[category["uuid"]] = category
@@ -61,7 +56,6 @@ def query_ledger_components():
         envelopes_by_uuid = {}
         for envelope in envelopes:
             envelopes_by_uuid[envelope["uuid"]] = envelope
-
 
         for supplier in suppliers:
             supplier_parts[supplier["uuid"]] = {"supplier": supplier, "parts": []}
@@ -124,24 +118,8 @@ def home():
     """display status information about the blockchain. Eventually, this might be its own app.
     """
     try:
-        timestamp = get_ledger_uptime()["time_stamp"]
-
-        # remove microseconds and timezone information
-        timestamp_no_us = timestamp.split(".")[0]
-
-        # calculate difference until now
-        startup_time = datetime.datetime.strptime(timestamp_no_us, "%Y-%m-%d %H:%M:%S")
-        uptime_duration = str(datetime.datetime.now() - startup_time)
-
-        # remove microseconds from uptime
-        uptime = ".".join(uptime_duration.split(".")[:-1])
-
-        # envelope_count=len(envelopes), \
-        # supplier_count=len(suppliers), \
-        # part_count=len(parts))
-
         return render_page("home", \
-            uptime=uptime, \
+            uptime=get_ledger_uptime(), \
             apps=get_blockchain_apps(), \
             nodes=get_blockchain_nodes() , \
             ledger_api_address=get_ledger_address(), \
@@ -157,23 +135,20 @@ def home():
 def get_node_status(uuid):
     """json route for pinging a node and returning its status
     """
-    selected_node = None
-    for node in get_blockchain_nodes():
-        if node["uuid"] == uuid:
-            selected_node = node
-            break
-
-    if selected_node is None:
-        return jsonify({"status": "Down. Node UUID was not found on the network."})
-
-    if "api_address" not in node:
-        return jsonify({"status": "Invalid conductor response. No api_address."})
-
     try:
-        node_status = ping_node(node["api_address"], timeout=5)
-    except ReadTimeout:
-        node_status = "Down. Timed out."
-    except ConnectionError:
-        node_status = "Down. Connection refused."
+        return jsonify({"status": ping_node(uuid)})
+    except APIError as error:
+        return jsonify({"status": "Down. " + str(error)})
 
-    return jsonify({"status": node_status})
+
+@app.route("/blockchain/nodes/blocks/<uuid>")
+def node_blocks_table(uuid):
+    """html route for getting list of ledger transactions (blocks) for a node and returning a table
+    """
+    try:
+        return render_template("ledger_blocks_table.html", blocks=get_node_blocks(uuid))
+    except APIError as error:
+        return render_template("error.html", \
+            error_message="Failed to retrieve list of blockchain transactions on this node. " \
+            + str(error))
+

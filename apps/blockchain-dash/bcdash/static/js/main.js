@@ -13,6 +13,7 @@ OR CONDITIONS OF ANY KIND, either express or implied.
 */
 
 function popup_message(title, message) {
+    $("#popup-dialog .modal-dialog").width(600);
     $("#popup-dialog .modal-title").html(title);
     $("#popup-dialog .modal-body").html(message);
     $("#popup-dialog").modal();
@@ -68,13 +69,45 @@ $(document).ready(function() {
             popup_message("Error", errorThrown);
         }
     });
-
-
 });
 
 
+
+// only show one popover at a time
+$(document).on("click", ".payload-data", function(evt) {
+    $('.payload-data').not(this).popover("hide");
+    $(this).popover("toggle");
+
+});
+
 $(document).on("click", ".blockchain-node", function(evt) {
     popup_message("Node Details", $(this).find(".blockchain-node-popup-content").html());
+
+    (function(uuid) {
+        $.ajax({
+            url: "/blockchain/nodes/blocks/" + uuid,
+            type: "GET",
+            dataType: "html",
+
+            beforeSend: function() {
+                $("#popup-dialog .modal-dialog").width(600);
+                $(".node-blocks-table-preload").show();
+            },
+            success: function(response) {
+                $(".node-blocks-table-preload").hide();
+                $("#popup-dialog .modal-dialog").width(730);
+                $("#popup-dialog .node-blocks-table").html(response);
+                $('[data-toggle="popover"]').popover({"trigger": "manual"});
+
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                $(".node-blocks-table-preload").hide();
+                $("#popup-dialog .modal-dialog").width(600);
+                $("#popup-dialog .node-blocks-table").html(errorThrown);
+            }
+        });
+    })($(this).attr("uuid"));
+
 });
 
 $(document).on("click", ".blockchain-app", function(evt) {
