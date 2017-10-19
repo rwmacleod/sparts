@@ -435,7 +435,6 @@ a:hover, a:active, a:focus {
 }
 
 #cancel-edit-btn {
-    margin-left: 5px;
     display: none;
 }
 
@@ -509,13 +508,21 @@ a:hover, a:active, a:focus {
 }
 
 .blockchain-trust-image {
-    width: 40px;
-    background-image: url("/static/images/blockchain-logo.png");
+    width: 55px;
+    background-image: url("/static/images/technology.png");
+    padding-top: 47px;
+    font-size: 12px;
+    text-align: center;
+    background-size: 45px 45px;
+    background-position: 7px 0;
+    margin-top: 10px !important;
 }
 
-.openchain-image {
-    width: 60px;
+.openchain-icon {
+    width: 70px;
     background-image: url("/static/images/openchain1-1.png");
+    margin-top: 15px !important;
+    margin-left: 40px !important;
 }
 
 #icons {
@@ -614,8 +621,8 @@ a:hover, a:active, a:focus {
 
 .envelope-identity {
     float: left;
-    margin-top: 30px;
-    margin-left: 30px;
+    margin-top: 20px;
+    margin-left: 20px;
 }
 
 .openchain-image {
@@ -1160,8 +1167,8 @@ h3 {
     float: right;
 }
 
-.envelope-buttons * {
-    margin-left: 3px;
+.envelope-buttons {
+/*    margin-left: 3px;*/
 }
 
 

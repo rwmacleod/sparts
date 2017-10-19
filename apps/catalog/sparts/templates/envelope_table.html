@@ -20,7 +20,7 @@
 
         {% if envelope.openchain %}
 
-            <div class="envelope-identity envelope-stamp openchain-image"
+            <div class="envelope-identity envelope-stamp openchain-icon"
             title="Openchain Conformant"></div>
 
         {% endif %}
@@ -28,24 +28,26 @@
         {% if envelope.blockchain == True %}
 
             <div class="envelope-identity envelope-stamp blockchain-trust-image"
-            title="Trusted by Blockchain"></div>
+            title="Trusted by Blockchain">Blockchain</div>
 
         {% endif %}
 
         <div class="envelope-buttons" style="float: right;">
 
-            <button class="btn btn-danger delete-envelope-btn">Delete Envelope</button>
+
 
             {% if envelope.boms %}
 
                 <a class="btn btn-info" href="/envelope/bom/view/{{envelope.uuid}}"
-                target="_blank" type="button">Open-source Bill of Materials</a>
+                target="_blank" type="button"><span class="glyphicon glyphicon glyphicon-th-list"></span> Bill of Materials</a>
 
             {% endif %}
 
             <a class="btn btn-success download-envelope-btn"
             href="/envelope/download/{{envelope.uuid}}/{{envelope.filename}}"
             target="_blank"><span class="glyphicon glyphicon-download-alt"></span> Download Envelope</a>
+
+            <button class="btn btn-danger delete-envelope-btn"><span class="glyphicon glyphicon glyphicon-trash"></span> Delete</button>
 
         </div>
     </div>
