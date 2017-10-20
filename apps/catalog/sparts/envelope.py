@@ -565,14 +565,14 @@ def download_artifact_filename(uuid, filename):
     # if this is a crypto file, display it with crypto viewer (unless it fails)
 
     try:
-    if artifact.content_type == "crypto":
-        with open(artifact_file) as file:
-            crypto = json.loads(file.read())
-            assert float(crypto["crypto_spec_version"]) >= 2.0
-            return render_page("crypto_viewer", \
-                filelist=crypto["crypto_evidence"], artifact=artifact, \
-                package_name=crypto["package_name"], \
-                verif_code=crypto["file_collection_verification_code"])
+        if artifact.content_type == "crypto":
+            with open(artifact_file) as file:
+                crypto = json.loads(file.read())
+                assert float(crypto["crypto_spec_version"]) >= 2.0
+                return render_page("crypto_viewer", \
+                    filelist=crypto["crypto_evidence"], artifact=artifact, \
+                    package_name=crypto["package_name"], \
+                    verif_code=crypto["file_collection_verification_code"])
     except:
         pass
 
