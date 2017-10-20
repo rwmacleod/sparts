@@ -564,7 +564,7 @@ def download_artifact_filename(uuid, filename):
 
     # if this is a crypto file, display it with crypto viewer (unless it fails)
 
-    # try:
+    try:
     if artifact.content_type == "crypto":
         with open(artifact_file) as file:
             crypto = json.loads(file.read())
@@ -573,8 +573,8 @@ def download_artifact_filename(uuid, filename):
                 filelist=crypto["crypto_evidence"], artifact=artifact, \
                 package_name=crypto["package_name"], \
                 verif_code=crypto["file_collection_verification_code"])
-    # except:
-    #     pass
+    except:
+        pass
 
     return send_file(artifact_file, filename)
 
@@ -657,10 +657,3 @@ def view_envelope_bom(envelope_uuid):
         bom_graphs=get_bom_graphs(envelope), \
         images_folder="/static/images", \
         static_content_links=False)
-
-
-@app.route("/envelopes")
-def all_envelopes():
-    """page for viewing list of envelopes saved in the database. not implemented yet.
-    """
-    return render_page("envelopes", envelopes=db_session.query(Envelope))
