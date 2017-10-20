@@ -157,6 +157,9 @@ def save_envelope_to_blockchain(envelope):
 def call_ledger_api(method, url, data={}):
     """ call the blockchain ledger service with the given method (post or get), url, and data.
     """
+    if app.config["BYPASS_LEDGER_CALLS"]:
+        return {}
+
     try:
         return call_api_service(method, get_ledger_address() + url, data)
     except APIError as error:

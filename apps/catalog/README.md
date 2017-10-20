@@ -43,7 +43,7 @@ Start by selecting a username and a password for a database account. You should 
     $ grant all privileges on database "sparts_catalog" to sparts_admin;
 
     $ \q
-    
+
     $ exit
 
 ## Configure the web server ##
@@ -120,6 +120,7 @@ Create a file `config.py` in `/var/www/sparts/apps/catalog` and paste the follow
     BLOCKCHAIN_API = "http://147.11.176.31:3075/api/sparts"
     DEFAULT_API_TIMEOUT = 45
     BYPASS_API_CALLS = False
+    BYPASS_LEDGER_CALLS = False
     PRODUCTION = False
 
 `BLOCKCHAIN_API` is the hard-coded address of the conductor service.
@@ -127,6 +128,8 @@ Create a file `config.py` in `/var/www/sparts/apps/catalog` and paste the follow
 `DEFAULT_API_TIMEOUT` is the number of seconds to wait for a response in an API call.
 
 `BYPASS_API_CALSS` is a flag to bypass making API calls for debugging purposes.
+
+`BYPASS_LEDGER_CALLS` is a flag to bypass making calls to the ledger service.
 
 `PRODUCTION` is a boolean indicating whether this is the production server.
 

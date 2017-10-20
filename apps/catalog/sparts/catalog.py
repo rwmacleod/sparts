@@ -27,7 +27,7 @@ from sparts.envelope import delete_envelope
 def populate_categories():
     """ask blockchain for categories and update the database
     """
-    if app.config["BYPASS_API_CALLS"]: return
+    if app.config["BYPASS_API_CALLS"] or app.config["BYPASS_LEDGER_CALLS"]: return
 
     print("Retrieving blockchain categories ...")
     categories = get_blockchain_categories()
