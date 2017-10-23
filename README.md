@@ -5,7 +5,7 @@
 
 We developed a Blockchain-based Software Parts Ledger to track the open source components from which today's manufactured products and devices are constructed. A number of important benefits are obtained by knowing which open source components are used such as: 1) ensuring manufactures are able to identify and secure the distribution (licensing) rights for all open source components; 2) understanding the impact of open source security vulnerabilities; 3) enable identification of cryptography technologies (e.g., FIPS 140-2 certification, export licensing); and 4) enable accurate reporting on all open source parts as a requirement to obtaining functional safety certification for safety critical products (e.g., medical devices, aircraft, autonomous vehicles, elevators, …)
 
-The Software Part ledger establishes trust between a manufacture and its suppliers by tracking suppliers, their software parts, the open source used and the corresponding **Compliance Artifacts** - e.g., source code, legal notices, SPDX data, cryptography data. This is particular helpful for manufactures who build products by utilizing software from many different suppliers (including sub-suppliers). To achieve accountability a mechanism is need to maintain global state information about the suppliers; their parts and compliance artifacts for all participate across the supply chain. To establish trust among all participants, these records need to be i) transparent, ii) immutable, while iii) removing the dependence on third party information brokers (middleman).
+The Software Part ledger establishes trust between a manufacture and its suppliers by tracking suppliers, their software parts, the open source used and the corresponding **Compliance Artifacts** - e.g., source code, legal notices, Open Source Bill of Materials, SPDX data, cryptography data and so forth. This is particular helpful for manufactures who build products that utilize software from many different suppliers (including sub-suppliers). To achieve accountability a mechanism is needed to maintain global state information about the suppliers; their parts and compliance artifacts for all participate across the supply chain. To establish trust among all participants, these records need to be i) transparent, ii) immutable, while iii) removing the dependence on third party information brokers (middle guy).
 
 We obtain the required level of trust by utilizing the Hyperledger project's Sawtooth platform to construct a Blockchain Ledger. The Ledger achieves accountability by tracking which suppliers delivered which software parts that used which open source and who delivered (or did not deliver) which open source compliance artifacts. We also utilize a new data construct, the **Compliance Envelope**, a standard method of collecting, indexing and archiving a diverse collection of compliance artifacts so that they can be delivered as a single unit with each software part. A compliance envelope is essentially an archive file containing the collection of artifacts plus a set Meta information. We use the Ledger to maintain the association among the supplier, their parts and the corresponding compliance envelope. One is allowed to associate individual artifacts to a given product but that adds an addition level of information retrieval complexity. The Software Parts Ledger ensures the compliance envelope information is transparent, immutable to unlawful modifications and where no central organization broker is required. 
 
@@ -25,10 +25,6 @@ Manufacturer M needs a way to trust that 1) each supplier has prepared the requi
 <b>Figure 2</b>: Software Ledger </p>
 
 Figure 2 illustrates Ledger entries that represent the parts for video camera V presented in Figure 2. Transactions 101 through 104 represent software part 37 and transactions 105 through 110 represent part 101. Transaction 111 illustrates that an additional artifact was later added to the part 37 envelope and transaction 112 illustrates that the source code was updated for part 101’s envelope. In the first instances, Supplier S1 forgot to include a notice artifact but was able to remedy it after the fact. In the second instance, Supplier S2 was able to determine that some of the mandatory/required source code was missing and to efficiently remedy the issue by executing another ledger transaction. By recording software part information in the ledger, customers of both suppliers S1 and S2 would automatically receive the updates. Upon shipping video camera V, manufacturer M could query the Ledger to obtain the latest most comprehensive collect of compliance artifacts available. If updates where made V's compliance envelope after it shipped (e.g., include missing source code) then manufacturer M and its customers would be able to obtain the latest version by referencing the Ledger. 
-
-A more detailed discussion of the the use and benefits of a Software Ledger to track and manage the use of open source across the supply chain can be found here:
-   [\[article\]](https://github.com/MarkGisi/articles-n-insights/blob/master/open-source/SoftwareLedger4SupplyChain.pdf)
-
 
 ## Project Components
 
@@ -53,6 +49,18 @@ Figure 3 illustrates the relations between the suppliers, manufacture, software 
 
 The ledger provides the ability to maintain global state information across the supply chain network. This information established trust between suppliers and manufactures by holding suppliers accountable for their the open source compliance artifacts that accompany the software part delivery.
 
-## Getting Started
+## Project License ##
 
-See the Getting Started document in the project's documentation directory (/doc).
+The SParts project is licesed under the **Apache License, Version 2.0**. For further details, visit http://www.apache.org/licenses/LICENSE-2.0. All code created and/or contributed to the project is licensed under the Apache license. It may contain files under different licenses in the event code was borrowed from another open source project under a different license. Each source file should include a license notice that designates the licensing terms for the respective file. The license text for the SParts project can be found in the LICENSE file found in the project's top level directory. 
+
+## Contributing ##
+New source code contributions are made under the Apache-2.0 license and the contributor must sign off each commit under the [Developer Certificate of Origin (DCO) version 1.1](https://developercertificate.org).  To contribute or learn more about the project contact Mark.Gisi@WindRiver.com
+
+
+## Legal Notices ##
+
+All product names, logos, and brands are property of their respective owners. All company, product and service names used in this software are for identification purposes only. 
+
+Disclaimer of Warranty / No Support: Wind River does not provide support and maintenance services for this software, under Wind River’s standard Software Support and Maintenance Agreement or otherwise. Unless required by applicable law, Wind River provides the software (and each contributor provides its contribution) on an “AS IS” BASIS, WITHOUT WARRANTIES OF ANY KIND, either express or implied, including, without limitation, any warranties of TITLE, NONINFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the software and assume any risks associated with your exercise of permissions under the license.
+
+
