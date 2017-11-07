@@ -11,7 +11,7 @@ We obtain the required level of trust by utilizing the Hyperledger project's Saw
 
 ## Example Illustration
 
-The biggest challenge to obtaining a complete Open Source Bill of Materials (OSS-BOM) for manufactured products (along with the corresponding compliance artifacts) arise because software parts are provided by multiple different suppliers and sub-suppliers. Consider the simple example illustrated below  where three different suppliers provide software parts used in the manufacturing of a video camera V sold by manufacturer M. Supplier S1 delivers the microprocessor accompanied by the firmware and software drivers. Supplier S2 assembles and delivers the Linux runtime operating system and Supplier S3 delivers the applications that manage the camera display, menu and various functions. Ideally, when camera V ships, it should be accompanied by a single compliance envelope that contains, as a minimum, a list of all the open source parts incorporated by the various suppliers (OSS BOMs); the mandatory source code and legal notices.
+The biggest challenge to obtaining a complete Open Source Bill of Materials (OSS-BOM) for manufactured products (along with the corresponding compliance artifacts) arises because software parts are provided by multiple different suppliers and sub-suppliers. Consider the simple example illustrated below where three different suppliers provide software parts used in the manufacturing of a video camera V sold by manufacturer M. Supplier S1 delivers the microprocessor accompanied by the firmware and software drivers. Supplier S2 assembles and delivers the Linux runtime operating system and Supplier S3 delivers the applications that manage the camera display, menu and various functions. Ideally, when camera V ships, it should be accompanied by a single compliance envelope that contains, as a minimum, a list of all the open source parts incorporated by the various suppliers (OSS BOMs); the mandatory source code and legal notices.
 
 <p align="center"><img src="./docs/images/video-camera-arch.png" width="710" height="475"/>
 <br><br>
@@ -20,7 +20,7 @@ The biggest challenge to obtaining a complete Open Source Bill of Materials (OSS
 
 Manufacturer M needs a way to trust that 1) each supplier has prepared the required compliance artifacts for their respective contribution; 2) in the event that an artifact was missing or not properly prepared (e.g., source code, legal notices, ...), we can identify who is responsible for remedying the situation; and 3) no one supplier can sabotage (hack) the integrity of the compliance artifacts of another supplier. We used the Blockchain technology to create a Software Parts Ledger to manage this complexity. It serves as a global data store that tracks the state of suppliers, their list of software parts, the corresponding envelopes and envelope content. Typical transactions performed on the Ledger include adding a part to a supplier’s parts list, assigning an envelope to a software part, and adding, updating and removing artifacts from an envelope.
 
-<p align="center"><img src="./docs/images/blockchain-illustration.png" width="494" height="341"/>
+<p align="center"><img src="./docs/images/blockchain-illustration.png" width="493" height="373"/>
 <br><br>
 <b>Figure 2</b>: Software Ledger </p>
 
@@ -28,19 +28,21 @@ Figure 2 illustrates Ledger entries that represent the parts for video camera V 
 
 ## Project Components
 
-Our model of a supply chain network has two core system components: the ledger and conductor. The **ledger**, built using the Hyperledger Project's Sawtooth platform,  which tracks:
+Our model of a supply chain network has two core system components: the **ledger** and **conductor**. The ledger tracks the relationships among suppliers, parts and corresponding compliance artifacts. The conductor is a background coordination process which, although optional, provides a number of useful services.
+
+The **ledger**, built using the Hyperledger Project's Sawtooth platform, tracks:
 
 - **suppliers** - providers of software parts. Each supplier must register with the ledger. 
 - **software parts** - software parts used by manufactures to construct products - includes both simple and complex software parts. 
-- **compliance artifacts** - artifacts prepared to satisfy the license obligations for the different opens source components used used to create a software part. They typically include obligatory source code, written offers for source, license notices and/or copies of licenses. The collection could also include information that, although not required by a license, provides important utility, such as Open Source BOMs, SPDX licensing data and cryptography information.
+- **compliance artifacts** - artifacts prepared to satisfy the license obligations for the different opens source components used to create a software part. They typically include obligatory source code, written offers for source, license notices and/or copies of licenses. The collection could also include information that, although not required by a license, provides important utility, such as Open Source BOMs, SPDX licensing data and cryptography information.
 - **compliance envelope** - a construct that represents a standard method of indexing, bundling and delivering the compliance artifacts as a single item. Regardless of whether a software offering is a simple atomic part (e.g., software library), or a more complex one such as the software runtime that controls a consumer device, the envelope contains a rich collection of information that represents all the open source parts that the offering was comprised of.
 - **relationships** -  relationships between the above entities (e.g, supplier -> parts, part -> envelope, ...)
 
 The ledger is accessible via a RESTful API, and python and go libraries. 
 
-The **conductor** functions as the network's underlying kernel responsible for monitoring and coordinating the the different supply chain network resources and entities (ledger, applications, suppliers, ...). For instance it maintains a directory of all the network suppliers, applications and ledger nodes. It serves up unique identifiers (UUID) for the various entities (e.g., suppliers, software parts, compliance envelopes, ...)  along with other supply chain network support services. The Conductor is accessible via a RESTful API. 
+The **conductor** functions as the network's underlying kernel responsible for monitoring and coordinating the different supply chain network resources and entities (ledger, applications, suppliers, ...). For instance it maintains a directory of all the network suppliers, applications and ledger nodes. It serves up unique identifiers (UUID) for the various entities (e.g., suppliers, software parts, compliance envelopes, ...)  along with other supply chain network support services. The Conductor is accessible via a RESTful API. 
 
-<p align="center"><img src="./docs/images/supplychain-network.png" width="533" height="387"/>
+<p align="center"><img src="./docs/images/supplychain-network.png" width="534" height="389"/>
 <br><br>
 <b>Figure 3</b>: Supply Chain Network with core components: the ledger and conductor.
 </p>
@@ -51,7 +53,7 @@ The ledger provides the ability to maintain global state information across the 
 
 ## Project License ##
 
-The SParts project is licesed under the **Apache License, Version 2.0**. For further details, visit http://www.apache.org/licenses/LICENSE-2.0. All code created and/or contributed to the project is licensed under the Apache license. It may contain files under different licenses in the event code was borrowed from another open source project under a different license. Each source file should include a license notice that designates the licensing terms for the respective file. The license text for the SParts project can be found in the LICENSE file found in the project's top level directory. 
+The SParts project is licensed under the **Apache License, Version 2.0**. For further details, visit http://www.apache.org/licenses/LICENSE-2.0. All code created and/or contributed to the project is licensed under the Apache license. It may contain files under different licenses in the event code was borrowed from another open source project under a different license. Each source file should include a license notice that designates the licensing terms for the respective file. The license text for the SParts project can be found in the LICENSE file found in the project's top level directory. 
 
 ## Contributing ##
 New source code contributions are made under the Apache-2.0 license and the contributor must sign off each commit under the [Developer Certificate of Origin (DCO) version 1.1](https://developercertificate.org).  To contribute or learn more about the project contact Mark.Gisi@WindRiver.com
