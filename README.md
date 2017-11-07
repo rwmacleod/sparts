@@ -42,7 +42,7 @@ The ledger is accessible via a RESTful API, and python and go libraries.
 
 The **conductor** functions as the network's underlying kernel responsible for monitoring and coordinating the different supply chain network resources and entities (ledger, applications, suppliers, ...). For instance it maintains a directory of all the network suppliers, applications and ledger nodes. It serves up unique identifiers (UUID) for the various entities (e.g., suppliers, software parts, compliance envelopes, ...)  along with other supply chain network support services. The Conductor is accessible via a RESTful API. 
 
-<p align="center"><img src="./docs/images/supplychain-network.png" width="534" height="389"/>
+<p align="center"><img src="./docs/images/supplychain-network.png" width="547" height="399"/>
 <br><br>
 <b>Figure 3</b>: Supply Chain Network with core components: the ledger and conductor.
 </p>
